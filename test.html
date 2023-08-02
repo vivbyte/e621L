@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>e621 Legacy Browser Client</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    #imageContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    img {
+      max-height: 300px;
+      margin: 10px;
+    }
+
+    input[type="text"] {
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 5px 10px;
+      font-size: 16px;
+    }
+
+    #pagination {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>e621 Client</h1>
+
+  <!-- Search bar -->
+  <input type="text" id="searchInput" placeholder="Enter a tag...">
+  <button onclick="searchImages()">Search</button>
+
+  <!-- Display area for recent images -->
+  <div id="imageContainer">
+    <!-- Images will be dynamically added here -->
+  </div>
+
+  <!-- Pagination for search results -->
+  <div id="pagination">
+    <!-- Page numbers will be dynamically added here -->
+  </div>
+
+  <!-- Next Page button -->
+  <button id="nextPageButton" onclick="fetchNextPage()" >Next Page</button>
+
+  <script>
+    // Constants
+    const baseUrl = 'https://e621.net/posts.json';
+    const limitPerPage = 5; // Changed to 5 images per page
+    let currentPage = 1;
+    let currentSearchTerm = '';
+
+    // Function to fetch recent images
+    function fetchRecentImages() {
+      currentPage = 1;
+      currentSearchTerm = '';
+      const url = `${baseUrl}?limit=${limitPerPage}&page=${currentPage}`;
+
+      fetchImages(url);
+    }
+
+    // Function to fetch images based on search term
+    function searchImages() {
+      currentPage = 1;
+      const searchTerm = document.getElementById('searchInput').value.trim();
+      currentSearchTerm = searchTerm;
+      const url = `${baseUrl}?tags=${encodeURIComponent(searchTerm)}&limit=${limitPerPage}&page=${currentPage}`;
+
+      fetchImages(url);
+    }
+
+    // Function to fetch the next page of images
+    function fetchNextPage() {
+      currentPage++;
+      const nextPageUrl = currentSearchTerm
+        ? `${baseUrl}?tags=${encodeURIComponent(currentSearchTerm)}&limit=${limitPerPage}&page=${currentPage}`
+        : `${baseUrl}?limit=${limitPerPage}&page=${currentPage}`;
+
+      fetchImages(nextPageUrl);
+    }
+
+    // Common function to fetch images
+    function fetchImages(url) {
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const images = data.posts;
+          const imageContainer = document.getElementById('imageContainer');
+          imageContainer.innerHTML = ''; // Clear previous images
+
+          images.forEach(image => {
+            const imageElement = document.createElement('img');
+            imageElement.src = image.file.url;
+            imageContainer.appendChild(imageElement);
+          });
+
+          // Check if there are more pages
+          const totalPages = Math.ceil(data.total / limitPerPage);
+          if (currentPage < totalPages) {
+            document.getElementById('nextPageButton').style.display = 'block';
+          } else {
+            document.getElementById('nextPageButton').style.display = 'block';
+          }
+        })
+        .catch(error => console.error('Error fetching images:', error));
+    }
+
+    // Fetch recent images on page load
+    fetchRecentImages();
+  </script>
+</body>
+</html>
