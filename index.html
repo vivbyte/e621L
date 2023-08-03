@@ -145,13 +145,12 @@
 
      // Function to redirect the user to Google.com
   function redirectToGoogle() {
-    // Remove the intermediate URL from history
-    window.history.replaceState({}, '', '/');
     window.location.href = 'https://www.google.com';
   }
 
   // Keydown event handler
   let escKeyPressCount = 0;
+  let previousUrl = null;
   const timeInterval = 1000; // Time interval in milliseconds (adjust as needed)
 
   document.addEventListener('keydown', function(event) {
@@ -170,9 +169,17 @@
     }
   });
 
-  // Remove the current URL from history during initial page load
+  // Detect and remove previous page from history using the History API
   window.addEventListener('load', function() {
-    window.history.replaceState({}, '', '/');
+    previousUrl = document.referrer;
+
+    if (previousUrl) {
+      setTimeout(function() {
+        window.history.replaceState({}, '', '/');
+        window.history.pushState({}, '', '/');
+      }, 0);
+    }
+  });
   </script>
 </body>
 </html>
