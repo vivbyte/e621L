@@ -142,6 +142,44 @@
 
     // Fetch recent images on page load
     fetchRecentImages();
+
+     // Function to redirect the user to Google.com
+  function redirectToGoogle() {
+    window.location.href = 'https://www.google.com';
+  }
+
+  // Keydown event handler
+  let escKeyPressCount = 0;
+  let previousUrl = null;
+  const timeInterval = 1000; // Time interval in milliseconds (adjust as needed)
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      escKeyPressCount++;
+
+      // If the ESC key is pressed twice within the specified time interval
+      if (escKeyPressCount === 2) {
+        redirectToGoogle();
+      }
+
+      // Reset the count if the time interval has passed
+      setTimeout(function() {
+        escKeyPressCount = 0;
+      }, timeInterval);
+    }
+  });
+
+  // Detect and remove previous page from history using the History API
+  window.addEventListener('load', function() {
+    previousUrl = document.referrer;
+
+    if (previousUrl) {
+      setTimeout(function() {
+        window.history.replaceState({}, '', '/');
+        window.history.pushState({}, '', '/');
+      }, 0);
+    }
+  });
   </script>
 </body>
 </html>
